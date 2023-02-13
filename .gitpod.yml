@@ -1,0 +1,6 @@
+image:
+  file: .devcontainer/Dockerfile
+vscode:
+  extensions:
+    - eamodio.gitlens
+    - vscjava.vscode-java-pack
