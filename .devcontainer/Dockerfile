@@ -31,3 +31,11 @@ RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime && \
   (DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata) && \
   echo ${TZ} > /etc/timezone && \
   dpkg-reconfigure --frontend noninteractive tzdata
+
+ARG MAVEN3_VERSION=3.9.0
+
+RUN \
+  mkdir -p /usr/share/maven && \
+  curl -fsSL http://apache.osuosl.org/maven/maven-3/${MAVEN3_VERSION}/binaries/apache-maven-${MAVEN3_VERSION}-bin.tar.gz | \
+  tar -xzC /usr/share/maven --strip-components=1 && \
+  ln -s /usr/share/maven/bin/mvn /usr/bin/mvn

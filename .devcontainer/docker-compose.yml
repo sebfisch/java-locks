@@ -14,6 +14,7 @@ services:
         GID: 1000
         LC: de_DE.UTF-8
         TZ: Europe/Berlin
+        MAVEN3_VERSION: "3.9.0"
     hostname: java
     volumes:
       - home:/home
