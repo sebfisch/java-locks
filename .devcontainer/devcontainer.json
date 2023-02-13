@@ -1,7 +1,7 @@
 {
   "name": "java-locks",
   "dockerComposeFile": ["docker-compose.yml"],
-  "service": "vscode",
+  "service": "dev",
   "workspaceFolder": "/home/me/locks",
   "customizations": {
     "vscode": {

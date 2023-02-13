@@ -2,7 +2,7 @@ version: "3"
 volumes:
   home:
 services:
-  vscode:
+  dev:
     command: /bin/sh -c "while sleep 1000; do :; done"
     build:
       context: "."
