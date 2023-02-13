@@ -1,0 +1,23 @@
+version: "3"
+volumes:
+  home:
+services:
+  vscode:
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    build:
+      context: "."
+      args:
+        USER: me
+        GROUP: me
+        HOME: /home/me
+        UID: 1000
+        GID: 1000
+        LC: de_DE.UTF-8
+        TZ: Europe/Berlin
+    hostname: java
+    volumes:
+      - home:/home
+      - ~/.ssh:/home/me/.ssh/
+      - ..:/home/me/locks
+    working_dir: /home/me/locks
+    user: me
