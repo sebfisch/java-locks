@@ -3,4 +3,6 @@ image:
 vscode:
   extensions:
     - eamodio.gitlens
+    - esbenp.prettier-vscode
+    - redhat.vscode-xml
     - vscjava.vscode-java-pack

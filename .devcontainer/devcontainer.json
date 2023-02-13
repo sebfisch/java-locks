@@ -8,7 +8,12 @@
       "settings": {
         "terminal.integrated.profiles.linux": {}
       },
-      "extensions": ["eamodio.gitlens", "vscjava.vscode-java-pack"]
+      "extensions": [
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode",
+        "redhat.vscode-xml",
+        "vscjava.vscode-java-pack"
+      ]
     }
   },
   "remoteUser": "me"
