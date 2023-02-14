@@ -1,5 +1,7 @@
 package sebfisch.store;
 
+import java.util.function.Function;
+
 /**
  * Interface for a key-value store storing strings.
  */
@@ -25,5 +27,18 @@ public interface Store {
    *              stored value
    */
   void put(String key, String value);
+
+  /**
+   * Updates the value stored with the given key using the given modification
+   * function.
+   * 
+   * @param key
+   *                     key to update value at
+   * @param modification
+   *                     modification function
+   */
+  default void update(String key, Function<String, String> modification) {
+    put(key, modification.apply(get(key)));
+  }
 
 }
