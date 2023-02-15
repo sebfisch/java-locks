@@ -1,9 +1,12 @@
 package sebfisch.store;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * Implements a thread-safe store using structured synchronization.
  */
-public class SynchronizedBlockingStore extends SynchronizedStore {
+public class SynchronizedBlockingStore<K, V> extends SynchronizedStore<K, V> {
 
   /**
    * Retrieves the value stored with the given key and removes it.
@@ -16,8 +19,8 @@ public class SynchronizedBlockingStore extends SynchronizedStore {
    *         value stored with given key
    */
   @Override
-  synchronized public String get(String key) {
-    String value = super.get(key);
+  synchronized public V get(K key) {
+    V value = super.get(key);
 
     while (value == null) {
       try {
@@ -43,9 +46,15 @@ public class SynchronizedBlockingStore extends SynchronizedStore {
    *              key for stored value
    * @param value
    *              stored value
+   * 
+   * @throws IllegalArgumentException if value is null
    */
   @Override
-  synchronized public void put(String key, String value) {
+  synchronized public void put(K key, V value) throws IllegalArgumentException {
+    if (value == null) {
+      throw new IllegalArgumentException("value must not be null");
+    }
+
     while (STORE.containsKey(key)) {
       try {
         wait();

@@ -2,8 +2,13 @@ package sebfisch.store;
 
 /**
  * Implements a thread-safe store using structured synchronization.
+ * 
+ * @param K
+ *          key type
+ * @param V
+ *          value type
  */
-public class SynchronizedStore extends UnsafeStore {
+public class SynchronizedStore<K, V> extends UnsafeStore<K, V> {
 
   /**
    * Retrieves the value stored with the given key.
@@ -16,7 +21,7 @@ public class SynchronizedStore extends UnsafeStore {
    *         value stored with given key or null
    */
   @Override
-  synchronized public String get(String key) {
+  synchronized public V get(K key) {
     return super.get(key);
   }
 
@@ -31,7 +36,7 @@ public class SynchronizedStore extends UnsafeStore {
    *              stored value
    */
   @Override
-  synchronized public void put(String key, String value) {
+  synchronized public void put(K key, V value) {
     super.put(key, value);
   }
 

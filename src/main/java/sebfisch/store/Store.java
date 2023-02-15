@@ -2,8 +2,13 @@ package sebfisch.store;
 
 /**
  * Interface for a key-value store storing strings.
+ * 
+ * @param K
+ *          key type
+ * @param V
+ *          value type
  */
-public interface Store {
+public interface Store<K, V> {
 
   /**
    * Retrieves the value stored with the given key.
@@ -16,7 +21,7 @@ public interface Store {
    * @return
    *         value stored with given key
    */
-  String get(String key);
+  V get(K key);
 
   /**
    * Associates a value with a key.
@@ -31,6 +36,6 @@ public interface Store {
    * @param value
    *              stored value
    */
-  void put(String key, String value);
+  void put(K key, V value);
 
 }
