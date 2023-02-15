@@ -1,8 +1,5 @@
 package sebfisch.store;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 /**
  * Implements a thread-safe store using structured synchronization.
  */
