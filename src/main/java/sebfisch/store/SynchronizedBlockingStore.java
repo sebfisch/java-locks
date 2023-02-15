@@ -29,6 +29,7 @@ public class SynchronizedBlockingStore extends SynchronizedStore {
     }
 
     STORE.remove(key);
+    notifyAll();
 
     return value;
   }
@@ -54,6 +55,7 @@ public class SynchronizedBlockingStore extends SynchronizedStore {
     }
 
     super.put(key, value);
+    notifyAll();
   }
 
 }
