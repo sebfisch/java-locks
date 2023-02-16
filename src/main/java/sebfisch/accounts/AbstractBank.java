@@ -5,10 +5,11 @@ import java.util.List;
 
 public abstract class AbstractBank implements Bank {
 
-  private final List<Account> accounts = new ArrayList<>();
+  protected final List<Account> accounts = new ArrayList<>();
 
-  protected void registerAccount(Account account) {
+  protected Account registeredAccount(Account account) {
     accounts.add(account);
+    return account;
   }
 
   @Override
