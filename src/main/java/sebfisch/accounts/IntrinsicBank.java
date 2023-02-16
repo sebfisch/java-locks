@@ -10,8 +10,7 @@ public class IntrinsicBank extends AbstractBank {
     // if another thread locks accounts in a different order,
     // for example, when transferring in the other direction.
 
-    // synchronized (from) { synchronized (to) { super.transfer(from, to, amount);
-    // }}
+    // synchronized(from) { synchronized(to) { super.transfer(from, to, amount); }}
 
     // To prevent deadlocks we can lock accounts in a fixed order
     // (for example by their index in the list of accounts)
