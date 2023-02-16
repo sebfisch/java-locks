@@ -33,12 +33,12 @@ public class ReadWriteBank extends AbstractBank<ReadWriteBank.Account> {
 
   @Override
   public int totalFunds() {
-    try {
-      for (int i = 0; i < accounts.size(); i++) {
-        while (!accounts.get(i).lock.readLock().tryLock()) {
-        }
+    for (int i = 0; i < accounts.size(); i++) {
+      while (!accounts.get(i).lock.readLock().tryLock()) {
       }
+    }
 
+    try {
       return super.totalFunds();
     } finally {
       for (int i = 0; i < accounts.size(); i++) {
