@@ -1,9 +1,9 @@
 package sebfisch.accounts;
 
-public class IntrinsicBank extends AbstractBank {
+public class IntrinsicBank extends AbstractBank<IntrinsicBank.Account> {
 
   @Override
-  public void transfer(Bank.Account from, Bank.Account to, int amount)
+  public void transfer(Account from, Account to, int amount)
       throws InsufficientFundsException {
 
     // The following implementation may deadlock
@@ -64,7 +64,7 @@ public class IntrinsicBank extends AbstractBank {
   }
 
   @Override
-  public Bank.Account createAccount() {
+  public Account createAccount() {
     return registeredAccount(new Account());
   }
 

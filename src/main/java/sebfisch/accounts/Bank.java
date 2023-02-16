@@ -1,10 +1,10 @@
 package sebfisch.accounts;
 
-public interface Bank {
+public interface Bank<A extends Bank.Account> {
 
   int totalFunds();
 
-  Account createAccount();
+  A createAccount();
 
   interface Account {
 
@@ -16,7 +16,7 @@ public interface Bank {
 
   }
 
-  default void transfer(Account from, Account to, int amount) throws InsufficientFundsException {
+  default void transfer(A from, A to, int amount) throws InsufficientFundsException {
     from.withdraw(amount);
     to.deposit(amount);
   }

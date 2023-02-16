@@ -7,27 +7,25 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import sebfisch.accounts.Bank.Account;
-
-public class Simulation {
+public class Simulation<A extends Bank.Account> {
 
   public static void main(String[] args) throws InterruptedException {
-    new Simulation(new IntrinsicBank(), Executors.newCachedThreadPool(), 5000)
+    new Simulation<>(new ReentrantBank(), Executors.newCachedThreadPool(), 5000)
         .runRounds(100);
   }
 
-  private final Bank bank;
+  private final Bank<A> bank;
   private final ExecutorService pool;
 
-  private final List<Account> accounts;
+  private final List<A> accounts;
 
-  Simulation(Bank bank, ExecutorService pool, int count) {
+  Simulation(Bank<A> bank, ExecutorService pool, int count) {
     this.bank = bank;
     this.pool = pool;
 
     accounts = new ArrayList<>();
     for (int i = 0; i < count; i++) {
-      Account account = bank.createAccount();
+      A account = bank.createAccount();
       account.deposit(1000);
       accounts.add(account);
     }
@@ -44,8 +42,8 @@ public class Simulation {
 
   void runRound(int counter) {
     for (int i = 0; i < 1000; i++) {
-      Account from = accounts.get(new Random().nextInt(accounts.size()));
-      Account to = accounts.get(new Random().nextInt(accounts.size()));
+      A from = accounts.get(new Random().nextInt(accounts.size()));
+      A to = accounts.get(new Random().nextInt(accounts.size()));
       pool.execute(() -> {
         try {
           bank.transfer(from, to, 1);
