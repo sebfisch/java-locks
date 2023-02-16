@@ -1,8 +1,8 @@
 package sebfisch.accounts;
 
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ReentrantBank extends AbstractBank<ReentrantBank.Account> {
+public class ReadWriteBank extends AbstractBank<ReadWriteBank.Account> {
 
   @Override
   public void transfer(Account from, Account to, int amount)
@@ -12,18 +12,18 @@ public class ReentrantBank extends AbstractBank<ReentrantBank.Account> {
     // we can poll them, until they are available.
 
     while (true) {
-      if (from.lock.tryLock()) {
+      if (from.lock.writeLock().tryLock()) {
         try {
-          if (to.lock.tryLock()) {
+          if (to.lock.writeLock().tryLock()) {
             try {
               super.transfer(from, to, amount);
               return;
             } finally {
-              to.lock.unlock();
+              to.lock.writeLock().unlock();
             }
           }
         } finally {
-          from.lock.unlock();
+          from.lock.writeLock().unlock();
         }
       }
 
@@ -35,15 +35,15 @@ public class ReentrantBank extends AbstractBank<ReentrantBank.Account> {
   public int totalFunds() {
     try {
       for (int i = 0; i < accounts.size(); i++) {
-        while (!accounts.get(i).lock.tryLock()) {
+        while (!accounts.get(i).lock.readLock().tryLock()) {
         }
       }
 
       return super.totalFunds();
     } finally {
       for (int i = 0; i < accounts.size(); i++) {
-        if (accounts.get(i).lock.isHeldByCurrentThread()) {
-          accounts.get(i).lock.unlock();
+        if (accounts.get(i).lock.getReadHoldCount() > 0) {
+          accounts.get(i).lock.readLock().unlock();
         }
       }
     }
@@ -55,7 +55,7 @@ public class ReentrantBank extends AbstractBank<ReentrantBank.Account> {
   }
 
   static class Account implements Bank.Account {
-    ReentrantLock lock = new ReentrantLock();
+    ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     private int balance;
 
@@ -67,22 +67,22 @@ public class ReentrantBank extends AbstractBank<ReentrantBank.Account> {
 
     @Override
     public int balance() {
-      lock.lock();
+      lock.readLock().lock();
       try {
         return balance;
       } finally {
-        lock.unlock();
+        lock.readLock().unlock();
       }
     }
 
     @Override
     public void deposit(int amount) {
       assert amount >= 0;
-      lock.lock();
+      lock.writeLock().lock();
       try {
         balance += amount;
       } finally {
-        lock.unlock();
+        lock.writeLock().unlock();
       }
     }
 
@@ -90,7 +90,7 @@ public class ReentrantBank extends AbstractBank<ReentrantBank.Account> {
     public void withdraw(int amount) throws InsufficientFundsException {
       assert amount >= 0;
 
-      lock.lock();
+      lock.writeLock().lock();
       try {
         if (balance < amount) {
           throw new InsufficientFundsException();
@@ -98,7 +98,7 @@ public class ReentrantBank extends AbstractBank<ReentrantBank.Account> {
 
         balance -= amount;
       } finally {
-        lock.unlock();
+        lock.writeLock().unlock();
       }
     }
   }

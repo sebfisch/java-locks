@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 public class Simulation<A extends Bank.Account> {
 
   public static void main(String[] args) throws InterruptedException {
-    new Simulation<>(new ReentrantBank(), Executors.newCachedThreadPool(), 5000)
+    new Simulation<>(new ReadWriteBank(), Executors.newCachedThreadPool(), 5000)
         .runRounds(100);
   }
 
