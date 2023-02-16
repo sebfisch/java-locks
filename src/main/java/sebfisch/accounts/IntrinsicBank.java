@@ -49,8 +49,7 @@ public class IntrinsicBank extends AbstractBank {
 
   // locks all accounts recursively
   private int lockedTotalFunds(int accountIndex) {
-    if (accountIndex >= accounts.size()) {
-      // all accounts are locked
+    if (accountIndex >= accounts.size()) { // all accounts are locked
       return super.totalFunds();
     }
 
