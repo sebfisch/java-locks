@@ -16,9 +16,8 @@ public class IntrinsicBank extends AbstractBank<IntrinsicBank.Account> {
     // }
     // }
 
-    // To prevent deadlocks we can lock accounts in a fixed order
-    // (for example by their index in the list of accounts)
-    // which is unwieldy with intrinsic (block based) locks:
+    // To prevent deadlocks we lock accounts in a fixed order
+    // determined by their index in the list of accounts:
 
     if (accounts.indexOf(from) <= accounts.indexOf(to)) {
       synchronized (from) {
@@ -34,33 +33,6 @@ public class IntrinsicBank extends AbstractBank<IntrinsicBank.Account> {
       }
     }
 
-  }
-
-  // The inherited method totalFunds may see an inconsistent state
-  // reading one account before and another after a transfer.
-  // Declaring it synchronized (on the bank) would only help
-  // if Account methods would also be synchronized on the bank
-  // sacrificing lock granularity for deposits, withdrawals, and transfers.
-  //
-  // The alternative solution
-  // (to lock all accounts individually before computing the total funds)
-  // is possible but unwieldy with intrinsic (block based) synchronization:
-
-  @Override
-  public int totalFunds() {
-    return lockedTotalFunds(0);
-  }
-
-  // locks all accounts recursively
-  // stack overflow if too many accounts
-  private int lockedTotalFunds(int accountIndex) {
-    if (accountIndex >= accounts.size()) { // all accounts are locked
-      return super.totalFunds();
-    }
-
-    synchronized (accounts.get(accountIndex)) {
-      return lockedTotalFunds(accountIndex + 1);
-    }
   }
 
   @Override

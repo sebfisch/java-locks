@@ -12,9 +12,4 @@ public abstract class AbstractBank<A extends Bank.Account> implements Bank<A> {
     return account;
   }
 
-  @Override
-  public int totalFunds() {
-    return accounts.stream().mapToInt(A::balance).sum();
-  }
-
 }

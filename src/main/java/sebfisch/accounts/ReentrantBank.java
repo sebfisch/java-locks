@@ -32,24 +32,6 @@ public class ReentrantBank extends AbstractBank<ReentrantBank.Account> {
   }
 
   @Override
-  public int totalFunds() {
-    for (int i = 0; i < accounts.size(); i++) {
-      while (!accounts.get(i).lock.tryLock()) {
-      }
-    }
-
-    try {
-      return super.totalFunds();
-    } finally {
-      for (int i = 0; i < accounts.size(); i++) {
-        if (accounts.get(i).lock.isHeldByCurrentThread()) {
-          accounts.get(i).lock.unlock();
-        }
-      }
-    }
-  }
-
-  @Override
   public Account createAccount() {
     return registeredAccount(new Account());
   }

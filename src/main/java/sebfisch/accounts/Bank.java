@@ -2,8 +2,6 @@ package sebfisch.accounts;
 
 public interface Bank<A extends Bank.Account> {
 
-  int totalFunds();
-
   A createAccount();
 
   interface Account {

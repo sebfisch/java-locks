@@ -32,24 +32,6 @@ public class ReadWriteBank extends AbstractBank<ReadWriteBank.Account> {
   }
 
   @Override
-  public int totalFunds() {
-    for (int i = 0; i < accounts.size(); i++) {
-      while (!accounts.get(i).lock.readLock().tryLock()) {
-      }
-    }
-
-    try {
-      return super.totalFunds();
-    } finally {
-      for (int i = 0; i < accounts.size(); i++) {
-        if (accounts.get(i).lock.getReadHoldCount() > 0) {
-          accounts.get(i).lock.readLock().unlock();
-        }
-      }
-    }
-  }
-
-  @Override
   public Account createAccount() {
     return registeredAccount(new Account());
   }
