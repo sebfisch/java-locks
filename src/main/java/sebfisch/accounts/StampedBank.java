@@ -7,6 +7,8 @@ public class StampedBank extends AbstractBank<StampedBank.Account> {
 
   @Override
   public void transfer(Account from, Account to, int amount) throws InsufficientFundsException {
+    assert from != to; // or we would try to take the same lock twice
+
     long fromStamp;
     long toStamp;
     while (true) {
