@@ -1,49 +1,83 @@
 package sebfisch.accounts;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
+import java.util.random.RandomGenerator;
+import java.util.random.RandomGeneratorFactory;
 
 public class Simulation<A extends Bank.Account> {
 
+  record Config(
+      int startingBalance,
+      int numberOfAccounts,
+      int numberOfRounds,
+      int readsPerRound,
+      int writesPerRound) {
+  }
+
+  static final Config config = new Config(
+      256,
+      8,
+      128,
+      1024,
+      128);
+
   public static void main(String[] args) throws InterruptedException {
-    new Simulation<>(new StampedBank(), Executors.newCachedThreadPool(), 5000)
-        .runRounds(100);
+    System.out.println(config);
+
+    new Simulation<>(new IntrinsicBank(), Executors.newCachedThreadPool())
+        .runRounds();
   }
 
   private final Bank<A> bank;
   private final ExecutorService pool;
 
-  private final List<A> accounts;
+  private final List<A> accounts = new ArrayList<>();
+  private final LongAdder observedTotalBalance = new LongAdder();
+  private final RandomGenerator rgen = RandomGeneratorFactory.getDefault().create();
 
-  Simulation(Bank<A> bank, ExecutorService pool, int count) {
+  Simulation(Bank<A> bank, ExecutorService pool) {
     this.bank = bank;
     this.pool = pool;
 
-    accounts = new ArrayList<>();
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < config.numberOfAccounts(); i++) {
       A account = bank.createAccount();
-      account.deposit(1000);
+      account.deposit(config.startingBalance());
       accounts.add(account);
     }
   }
 
-  void runRounds(int count) throws InterruptedException {
-    for (int c = 1; c <= count; c++) {
-      runRound(c);
+  A randomAccount() {
+    return accounts.get(rgen.nextInt(accounts.size()));
+  }
+
+  void runRounds() throws InterruptedException {
+    System.out.println("executing %s with %s..."
+        .formatted(bank.getClass().getSimpleName(), pool.getClass().getSimpleName()));
+
+    Instant start = Instant.now();
+    for (int c = 1; c <= config.numberOfRounds(); c++) {
+      runRound();
     }
 
     pool.shutdown();
-    pool.awaitTermination(1, TimeUnit.HOURS);
+    pool.awaitTermination(1, TimeUnit.HOURS); // should finish sooner unless deadlock
+
+    long durationInMs = Duration.between(start, Instant.now()).toMillis();
+    System.out.println("total balance is %d after %dms"
+        .formatted(observedTotalBalance.sum(), durationInMs));
   }
 
-  void runRound(int counter) {
-    for (int i = 0; i < 1000; i++) {
-      A from = accounts.get(new Random().nextInt(accounts.size()));
-      A to = accounts.get(new Random().nextInt(accounts.size()));
+  void runRound() {
+    for (int i = 0; i < config.writesPerRound(); i++) {
+      A from = randomAccount();
+      A to = randomAccount();
       pool.execute(() -> {
         try {
           bank.transfer(from, to, 1);
@@ -53,8 +87,11 @@ public class Simulation<A extends Bank.Account> {
       });
     }
 
-    pool.execute(() -> {
-      System.out.println("Round %d: total funds %d".formatted(counter, bank.totalFunds()));
-    });
+    for (int i = 0; i < config.readsPerRound(); i++) {
+      A account = randomAccount();
+      pool.execute(() -> {
+        observedTotalBalance.add(account.balance());
+      });
+    }
   }
 }
