@@ -2,7 +2,7 @@ package sebfisch.accounts;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ReentrantBank extends AbstractBank<ReentrantBank.Account> {
+public class ReentrantBank implements Bank<ReentrantBank.Account> {
 
   @Override
   public void transfer(Account from, Account to, int amount)
@@ -16,7 +16,7 @@ public class ReentrantBank extends AbstractBank<ReentrantBank.Account> {
         try {
           if (to.lock.tryLock()) {
             try {
-              super.transfer(from, to, amount);
+              Bank.super.transfer(from, to, amount);
               return;
             } finally {
               to.lock.unlock();
@@ -33,7 +33,7 @@ public class ReentrantBank extends AbstractBank<ReentrantBank.Account> {
 
   @Override
   public Account createAccount() {
-    return registeredAccount(new Account());
+    return new Account();
   }
 
   static class Account implements Bank.Account {

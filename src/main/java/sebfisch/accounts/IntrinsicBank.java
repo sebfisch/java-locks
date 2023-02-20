@@ -1,6 +1,6 @@
 package sebfisch.accounts;
 
-public class IntrinsicBank extends AbstractBank<IntrinsicBank.Account> {
+public class IntrinsicBank implements Bank<IntrinsicBank.Account> {
 
   @Override
   public void transfer(Account from, Account to, int amount)
@@ -19,33 +19,42 @@ public class IntrinsicBank extends AbstractBank<IntrinsicBank.Account> {
     // To prevent deadlocks we lock accounts in a fixed order
     // determined by their index in the list of accounts:
 
-    if (accounts.indexOf(from) <= accounts.indexOf(to)) {
+    if (from.number() <= to.number()) {
       synchronized (from) {
         synchronized (to) {
-          super.transfer(from, to, amount);
+          Bank.super.transfer(from, to, amount);
         }
       }
     } else {
       synchronized (to) {
         synchronized (from) {
-          super.transfer(from, to, amount);
+          Bank.super.transfer(from, to, amount);
         }
       }
     }
 
   }
 
+  private int nextNumber = 1;
+
   @Override
-  public Account createAccount() {
-    return registeredAccount(new Account());
+  public synchronized Account createAccount() {
+    return new Account(nextNumber++);
   }
 
   static class Account implements Bank.Account {
 
+    private final int number;
+
     private int balance;
 
-    public Account() {
-      balance = 0;
+    public Account(int number) {
+      this.number = number;
+      this.balance = 0;
+    }
+
+    public int number() {
+      return number;
     }
 
     @Override

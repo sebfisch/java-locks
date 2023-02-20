@@ -2,7 +2,7 @@ package sebfisch.accounts;
 
 import java.util.concurrent.locks.StampedLock;
 
-public class StampedBank extends AbstractBank<StampedBank.Account> {
+public class StampedBank implements Bank<StampedBank.Account> {
 
   @Override
   public void transfer(Account from, Account to, int amount) throws InsufficientFundsException {
@@ -32,7 +32,7 @@ public class StampedBank extends AbstractBank<StampedBank.Account> {
 
   @Override
   public Account createAccount() {
-    return registeredAccount(new Account());
+    return new Account();
   }
 
   public static class Account implements Bank.Account {
