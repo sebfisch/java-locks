@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 // Implements "The Light Switch Problem"
-// Presented by Numberphile: https://www.youtube.com/watch?v=-UBDRX6bk-A
+// presented by Numberphile: https://www.youtube.com/watch?v=-UBDRX6bk-A
 public class LightSwitches {
 
   // Lights can be switched on and off.
