@@ -26,8 +26,6 @@ public class ReadWriteBank implements Bank<ReadWriteBank.Account> {
           from.lock.writeLock().unlock();
         }
       }
-
-      // should check the time to not poll indefinitely
     }
   }
 
@@ -39,11 +37,7 @@ public class ReadWriteBank implements Bank<ReadWriteBank.Account> {
   static class Account implements Bank.Account {
     ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private int balance;
-
-    public Account() {
-      balance = 0;
-    }
+    private int balance = 0;
 
     // explixit locks need to be released with try/finally
 
