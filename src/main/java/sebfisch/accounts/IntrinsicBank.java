@@ -46,11 +46,10 @@ public class IntrinsicBank implements Bank<IntrinsicBank.Account> {
 
     private final int number;
 
-    private int balance;
+    private int balance = 0;
 
     public Account(int number) {
       this.number = number;
-      this.balance = 0;
     }
 
     public int number() {

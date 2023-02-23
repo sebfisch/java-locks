@@ -26,8 +26,6 @@ public class ReentrantBank implements Bank<ReentrantBank.Account> {
           from.lock.unlock();
         }
       }
-
-      // should check the time to not poll indefinitely
     }
   }
 
@@ -39,11 +37,7 @@ public class ReentrantBank implements Bank<ReentrantBank.Account> {
   static class Account implements Bank.Account {
     ReentrantLock lock = new ReentrantLock();
 
-    private int balance;
-
-    public Account() {
-      balance = 0;
-    }
+    private int balance = 0;
 
     // explixit locks need to be released with try/finally
 
