@@ -48,8 +48,8 @@ public class Simulation<A extends Bank.Account> {
     );
 
     List<Scenario> configs = List.of(
-        // READ_ONLY,
-        // WRITE_ONLY,
+        READ_ONLY,
+        WRITE_ONLY,
         MORE_READS,
         MORE_WRITES,
         BOTH_EQUALLY //
