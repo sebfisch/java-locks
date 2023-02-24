@@ -3,19 +3,23 @@ package sebfisch.accounts;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.LongConsumer;
 import java.util.function.Supplier;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
+import java.util.stream.LongStream;
 
 public class Simulation<A extends Bank.Account> {
 
   static final int NUMBER_OF_THREADS = 16;
   static final long NUMBER_OF_TASKS = 10000000;
+  static final int NUMBER_OF_EXECUTIONS = 5;
   static final int NUMBER_OF_ACCOUNTS = 10;
   static final int STARTING_BALANCE = 100000;
 
@@ -82,13 +86,17 @@ public class Simulation<A extends Bank.Account> {
     return accounts.get(rgen.nextInt(accounts.size()));
   }
 
-  void run() throws InterruptedException {
-    runOnce();
-    runOnce();
-    runOnce();
+  void run() {
+    RunTimes times = LongStream
+        .generate(this::runOnce)
+        .limit(NUMBER_OF_EXECUTIONS)
+        .collect(RunTimes::new, (rts, t) -> rts.accept(t), RunTimes::combine);
+
+    System.out.println("median: %dms, median absolute deviation: %dms"
+        .formatted(times.median(), times.medianAbsoluteDeviation()));
   }
 
-  void runOnce() throws InterruptedException {
+  long runOnce() {
     ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
     LongAdder observedBalance = new LongAdder();
     LongAdder crashedTransfers = new LongAdder();
@@ -96,7 +104,12 @@ public class Simulation<A extends Bank.Account> {
     Instant start = Instant.now();
     accessAccounts(pool, observedBalance, crashedTransfers);
     pool.shutdown();
-    pool.awaitTermination(10, TimeUnit.SECONDS); // should finish sooner
+    try {
+      pool.awaitTermination(10, TimeUnit.SECONDS); // should finish sooner
+    } catch (InterruptedException e) {
+      System.out.println("interrupted after %dms"
+          .formatted(Duration.between(start, Instant.now()).toMillis()));
+    }
     long durationInMs = Duration.between(start, Instant.now()).toMillis();
 
     if (!pool.isTerminated()) {
@@ -105,6 +118,8 @@ public class Simulation<A extends Bank.Account> {
       System.out.println("observed balance is %d after %d crashed transfers and %dms"
           .formatted(observedBalance.sum(), crashedTransfers.sum(), durationInMs));
     }
+
+    return durationInMs;
   }
 
   void accessAccounts(ExecutorService pool, LongAdder observedBalance, LongAdder crashedTransfers) {
@@ -129,6 +144,35 @@ public class Simulation<A extends Bank.Account> {
       pool.execute(() -> {
         observedBalance.add(account.balance());
       });
+    }
+  }
+
+  record RunTimes(List<Long> times) implements LongConsumer {
+    RunTimes() {
+      this(new ArrayList<>());
+    }
+
+    @Override
+    public void accept(long time) {
+      times.add(time);
+    }
+
+    public RunTimes combine(RunTimes that) {
+      List<Long> combinedTimes = new ArrayList<>(this.times());
+      combinedTimes.addAll(that.times());
+      return new RunTimes(combinedTimes);
+    }
+
+    public long median() {
+      Collections.sort(times);
+      return times.get(times.size() / 2);
+    }
+
+    public long medianAbsoluteDeviation() {
+      long m = median();
+      List<Long> deviations = new ArrayList<>();
+      times.stream().map(time -> Math.abs(m - time)).forEach(deviations::add);
+      return new RunTimes(deviations).median();
     }
   }
 }
