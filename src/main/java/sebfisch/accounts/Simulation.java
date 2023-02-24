@@ -35,8 +35,8 @@ public class Simulation<A extends Bank.Account> {
 
   static final Scenario READ_ONLY = new Scenario(1, 0);
   static final Scenario WRITE_ONLY = new Scenario(0, 1);
-  static final Scenario MORE_READS = new Scenario(100, 1);
-  static final Scenario MORE_WRITES = new Scenario(1, 100);
+  static final Scenario MORE_READS = new Scenario(10000, 1);
+  static final Scenario MORE_WRITES = new Scenario(1, 10000);
   static final Scenario BOTH_EQUALLY = new Scenario(1, 1);
 
   public static void main(String[] args) throws InterruptedException {
@@ -48,8 +48,8 @@ public class Simulation<A extends Bank.Account> {
     );
 
     List<Scenario> configs = List.of(
-        READ_ONLY,
-        WRITE_ONLY,
+        // READ_ONLY,
+        // WRITE_ONLY,
         MORE_READS,
         MORE_WRITES,
         BOTH_EQUALLY //
@@ -105,7 +105,7 @@ public class Simulation<A extends Bank.Account> {
     accessAccounts(pool, observedBalance, crashedTransfers);
     pool.shutdown();
     try {
-      pool.awaitTermination(10, TimeUnit.SECONDS); // should finish sooner
+      pool.awaitTermination(20, TimeUnit.SECONDS); // should finish sooner
     } catch (InterruptedException e) {
       System.out.println("interrupted after %dms"
           .formatted(Duration.between(start, Instant.now()).toMillis()));
